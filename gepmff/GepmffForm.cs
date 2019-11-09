@@ -17,13 +17,13 @@ using System.Windows.Shell;
 
 namespace gepmff
 {
-    public partial class Form1 : Form
+    public partial class GepmffForm : Form
     {
         string ffmpeg_exe = string.Empty; //@"D:\Downloads\ffmpeg\bin\ffmpeg.exe";
         string ffprobe_exe = string.Empty;// @"D:\Downloads\ffmpeg\bin\ffprobe.exe";
         HashSet<string> VideoExt;
 
-        public Form1()
+        public GepmffForm()
         {
             InitializeComponent();
 

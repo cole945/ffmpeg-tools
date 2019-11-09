@@ -1,6 +1,6 @@
 ﻿namespace gepmff
 {
-    partial class Form1
+    partial class GepmffForm
     {
         /// <summary>
         /// Required designer variable.
