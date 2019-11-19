@@ -149,7 +149,8 @@ namespace gepmff
 
             // arguments.Append(" -ss 00:00:00.0 -t 5 ");
             arguments.Append(" -i \"").Append(mo.Filename).Append("\" -c:v ").Append(mo.codec);
-            arguments.Append(" -vf scale=\"'-1':'if(gt(ih,720),720,-1)':flags=lanczos\"  -preset medium -crf ").Append(mo.CRF);
+            arguments.Append(" -vf scale=\"'-1':'if(gt(ih," + mo.scale.ToString() + ")," + mo.scale.ToString() + ",-1)':flags=lanczos\"");
+            arguments.Append(" -preset medium -crf ").Append(mo.CRF);
             if (mo.Audio.StartsWith("aac"))
                 arguments.Append(" -acodec copy ");
             arguments.Append(" \"").Append(outfilename).Append("\"");
@@ -278,6 +279,7 @@ namespace gepmff
             public string suffix;
             public string codec;
             public string outdir;
+            public int scale = -1;
 
             public string Filename;
             public string Video = string.Empty;
@@ -387,13 +389,6 @@ namespace gepmff
         private async void buttonStart_Click(object sender, EventArgs e)
         {
             buttonStart.Enabled = false;
-
-            scaling = string.Empty;
-            if (comboBoxScale.Text != "(none)")
-            {
-                string s = comboBoxScale.Text;
-                scaling = "scale=\"'-1':'if(gt(ih," + s + ")," + s + ",-1)':flags=lanczos\"";
-            }
 
             await EncodingVideo();
             buttonStart.Enabled = true;
@@ -511,6 +506,12 @@ namespace gepmff
                 mo.outdir = textBoxOutdir.Text;
                 mo.FileInfo = new FileInfo(f);
                 mo.NewSize = 0;
+                
+                int Scale;
+                if (comboBoxScale.Text != "(none)" && int.TryParse(comboBoxScale.Text, out Scale))
+                    mo.scale = Scale;
+                else
+                    mo.scale = -1;
 
                 toolStripStatusLabelConsole.Text = Path.GetFileName(f);
                 mo = await Task.Run(new Func<MediaObject>(() => GetMediaObject(f, mo)));
