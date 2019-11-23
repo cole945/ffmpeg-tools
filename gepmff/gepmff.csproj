@@ -47,6 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FFmpegHelper.cs" />
     <Compile Include="GepmffForm.cs">
       <SubType>Form</SubType>
     </Compile>
