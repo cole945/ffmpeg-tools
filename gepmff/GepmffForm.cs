@@ -164,9 +164,10 @@ namespace gepmff
                 int curr = (int)e.Info.time.TotalMilliseconds;
                 if (curr > toolStripProgressBar1.Maximum)
                     toolStripProgressBar1.Maximum = curr;
-                toolStripProgressBar1.Value = curr;
+                if (curr >= 0)
+                    toolStripProgressBar1.Value = curr;
                 // if we have encoding 10min have it seem the bitrate is too high, cancel
-                if ((curr / 1000 / 60) > 5
+                if (curr > 0 && (curr / 1000 / 60) > 5
                     && ((float)e.Info.bitrate / e.MO.Bitrate) > 0.75
                     && ((float)e.Info.size * 1024 * e.MO.Duration.TotalMilliseconds / curr / e.MO.FileInfo.Length) > 0.8)
                 {

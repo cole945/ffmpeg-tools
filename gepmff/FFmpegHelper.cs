@@ -199,6 +199,7 @@ namespace gepmff
                 foreach (Match m in mc)
                     info[m.Groups["KEY"].Value] = m.Groups["VALUE"].Value;
 
+                Debug.WriteLine(line);
                 ProgressInfo pi = new ProgressInfo();
                 string v;
 
@@ -314,18 +315,26 @@ namespace gepmff
             {
                 StringBuilder arguments = new StringBuilder();
 
-                // first pass
-                arguments.Append(" -y -i \"").Append(mo.Filename).Append("\"");
-                arguments.Append(" -c:v ").Append(mo.codec);
-                if (mo.scale > 0)
-                    arguments.Append(" -vf scale=\"'-1':'if(gt(ih," + mo.scale.ToString() + ")," + mo.scale.ToString() + ",-1)':flags=lanczos\"");
-                arguments.Append(" -preset medium");
-                arguments.Append(" -b:v ").Append(mo.Q).Append("k");
-                arguments.Append(" -an");
-                arguments.Append(" -x265-params no-slow-firstpass=1:pass=1");
-                arguments.Append(" -f mp4");
-                arguments.Append(" NUL");
-                exitcode = executeFFmpeg(arguments.ToString(), mo);
+                if (mo.codec == "libx264" || mo.codec == "libx265")
+                {
+                    // first pass
+                    arguments.Append(" -y -i \"").Append(mo.Filename).Append("\"");
+                    arguments.Append(" -c:v ").Append(mo.codec);
+                    if (mo.scale > 0)
+                        arguments.Append(" -vf scale=\"'-1':'if(gt(ih," + mo.scale.ToString() + ")," + mo.scale.ToString() + ",-1)':flags=lanczos\"");
+                    arguments.Append(" -preset medium");
+                    arguments.Append(" -b:v ").Append(mo.Q).Append("k");
+                    arguments.Append(" -an");
+                    if (mo.codec == "libx265")
+                        arguments.Append(" -x265-params no-slow-firstpass=1:pass=1");
+                    else if (mo.codec == "libx264")
+                        arguments.Append(" -pass 1 -fastfirstpass 1 ");
+                    arguments.Append(" -f mp4");
+                    arguments.Append(" NUL");
+                    exitcode = executeFFmpeg(arguments.ToString(), mo);
+                }
+                else
+                    exitcode = 0;
 
                 if (exitcode == 0)
                 {
