@@ -51,6 +51,8 @@
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.textBoxLog = new System.Windows.Forms.TextBox();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.radioButtonBitrate = new System.Windows.Forms.RadioButton();
+            this.radioButtonCRF = new System.Windows.Forms.RadioButton();
             this.label5 = new System.Windows.Forms.Label();
             this.comboBoxScale = new System.Windows.Forms.ComboBox();
             this.trackBarBitrate = new System.Windows.Forms.TrackBar();
@@ -63,8 +65,10 @@
             this.textBoxOutdir = new System.Windows.Forms.TextBox();
             this.trackBarCRF = new System.Windows.Forms.TrackBar();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-            this.radioButtonCRF = new System.Windows.Forms.RadioButton();
-            this.radioButtonBitrate = new System.Windows.Forms.RadioButton();
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.openFileLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.applyNewParametersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.resetStatusToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.tabControl1.SuspendLayout();
@@ -73,6 +77,7 @@
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarBitrate)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarCRF)).BeginInit();
+            this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // statusStrip1
@@ -81,9 +86,9 @@
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripProgressBar1,
             this.toolStripStatusLabelConsole});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 406);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 538);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(1069, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(1189, 22);
             this.statusStrip1.TabIndex = 2;
             this.statusStrip1.Text = "statusStrip1";
             // 
@@ -109,7 +114,7 @@
             this.tableLayoutPanel1.RowCount = 2;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(1069, 406);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(1189, 538);
             this.tableLayoutPanel1.TabIndex = 3;
             // 
             // tabControl1
@@ -120,7 +125,7 @@
             this.tabControl1.Location = new System.Drawing.Point(3, 172);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(1063, 231);
+            this.tabControl1.Size = new System.Drawing.Size(1183, 363);
             this.tabControl1.TabIndex = 11;
             // 
             // tabPage1
@@ -129,7 +134,7 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(1055, 205);
+            this.tabPage1.Size = new System.Drawing.Size(1175, 337);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Files";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -150,11 +155,12 @@
             this.columnHeaderNewBitrate,
             this.columnHeaderParameters,
             this.columnHeaderStatus});
+            this.listViewFiles.ContextMenuStrip = this.contextMenuStrip1;
             this.listViewFiles.Dock = System.Windows.Forms.DockStyle.Fill;
             this.listViewFiles.HideSelection = false;
             this.listViewFiles.Location = new System.Drawing.Point(3, 3);
             this.listViewFiles.Name = "listViewFiles";
-            this.listViewFiles.Size = new System.Drawing.Size(1049, 199);
+            this.listViewFiles.Size = new System.Drawing.Size(1169, 331);
             this.listViewFiles.TabIndex = 0;
             this.listViewFiles.UseCompatibleStateImageBehavior = false;
             this.listViewFiles.View = System.Windows.Forms.View.Details;
@@ -222,7 +228,7 @@
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(944, 350);
+            this.tabPage2.Size = new System.Drawing.Size(1055, 205);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Commands";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -233,7 +239,7 @@
             this.textBoxLog.Location = new System.Drawing.Point(3, 3);
             this.textBoxLog.Multiline = true;
             this.textBoxLog.Name = "textBoxLog";
-            this.textBoxLog.Size = new System.Drawing.Size(938, 344);
+            this.textBoxLog.Size = new System.Drawing.Size(1049, 199);
             this.textBoxLog.TabIndex = 0;
             // 
             // panel1
@@ -254,8 +260,30 @@
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(3, 3);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(1063, 163);
+            this.panel1.Size = new System.Drawing.Size(1183, 163);
             this.panel1.TabIndex = 4;
+            // 
+            // radioButtonBitrate
+            // 
+            this.radioButtonBitrate.AutoSize = true;
+            this.radioButtonBitrate.Location = new System.Drawing.Point(358, 76);
+            this.radioButtonBitrate.Name = "radioButtonBitrate";
+            this.radioButtonBitrate.Size = new System.Drawing.Size(80, 17);
+            this.radioButtonBitrate.TabIndex = 24;
+            this.radioButtonBitrate.Text = "Avg Bitrate:";
+            this.radioButtonBitrate.UseVisualStyleBackColor = true;
+            // 
+            // radioButtonCRF
+            // 
+            this.radioButtonCRF.AutoSize = true;
+            this.radioButtonCRF.Checked = true;
+            this.radioButtonCRF.Location = new System.Drawing.Point(389, 31);
+            this.radioButtonCRF.Name = "radioButtonCRF";
+            this.radioButtonCRF.Size = new System.Drawing.Size(49, 17);
+            this.radioButtonCRF.TabIndex = 23;
+            this.radioButtonCRF.TabStop = true;
+            this.radioButtonCRF.Text = "CRF:";
+            this.radioButtonCRF.UseVisualStyleBackColor = true;
             // 
             // label5
             // 
@@ -376,33 +404,40 @@
             this.trackBarCRF.Value = 24;
             this.trackBarCRF.Scroll += new System.EventHandler(this.trackBarCRF_Scroll);
             // 
-            // radioButtonCRF
+            // contextMenuStrip1
             // 
-            this.radioButtonCRF.AutoSize = true;
-            this.radioButtonCRF.Checked = true;
-            this.radioButtonCRF.Location = new System.Drawing.Point(389, 31);
-            this.radioButtonCRF.Name = "radioButtonCRF";
-            this.radioButtonCRF.Size = new System.Drawing.Size(49, 17);
-            this.radioButtonCRF.TabIndex = 23;
-            this.radioButtonCRF.TabStop = true;
-            this.radioButtonCRF.Text = "CRF:";
-            this.radioButtonCRF.UseVisualStyleBackColor = true;
+            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.openFileLocationToolStripMenuItem,
+            this.applyNewParametersToolStripMenuItem,
+            this.resetStatusToolStripMenuItem});
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(193, 92);
             // 
-            // radioButtonBitrate
+            // openFileLocationToolStripMenuItem
             // 
-            this.radioButtonBitrate.AutoSize = true;
-            this.radioButtonBitrate.Location = new System.Drawing.Point(358, 76);
-            this.radioButtonBitrate.Name = "radioButtonBitrate";
-            this.radioButtonBitrate.Size = new System.Drawing.Size(80, 17);
-            this.radioButtonBitrate.TabIndex = 24;
-            this.radioButtonBitrate.Text = "Avg Bitrate:";
-            this.radioButtonBitrate.UseVisualStyleBackColor = true;
+            this.openFileLocationToolStripMenuItem.Name = "openFileLocationToolStripMenuItem";
+            this.openFileLocationToolStripMenuItem.Size = new System.Drawing.Size(192, 22);
+            this.openFileLocationToolStripMenuItem.Text = "Open file location";
+            this.openFileLocationToolStripMenuItem.Click += new System.EventHandler(this.OpenFileLocationToolStripMenuItem_Click);
+            // 
+            // applyNewParametersToolStripMenuItem
+            // 
+            this.applyNewParametersToolStripMenuItem.Name = "applyNewParametersToolStripMenuItem";
+            this.applyNewParametersToolStripMenuItem.Size = new System.Drawing.Size(192, 22);
+            this.applyNewParametersToolStripMenuItem.Text = "Apply new parameters";
+            this.applyNewParametersToolStripMenuItem.Click += new System.EventHandler(this.ApplyNewParametersToolStripMenuItem_Click);
+            // 
+            // resetStatusToolStripMenuItem
+            // 
+            this.resetStatusToolStripMenuItem.Name = "resetStatusToolStripMenuItem";
+            this.resetStatusToolStripMenuItem.Size = new System.Drawing.Size(192, 22);
+            this.resetStatusToolStripMenuItem.Text = "Reset status";
             // 
             // GepmffForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1069, 428);
+            this.ClientSize = new System.Drawing.Size(1189, 560);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Controls.Add(this.statusStrip1);
             this.Name = "GepmffForm";
@@ -419,6 +454,7 @@
             this.panel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarBitrate)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarCRF)).EndInit();
+            this.contextMenuStrip1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -461,6 +497,10 @@
         private System.Windows.Forms.ColumnHeader columnHeaderStatus;
         private System.Windows.Forms.RadioButton radioButtonBitrate;
         private System.Windows.Forms.RadioButton radioButtonCRF;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem openFileLocationToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem applyNewParametersToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem resetStatusToolStripMenuItem;
     }
 }
 

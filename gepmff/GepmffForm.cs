@@ -223,6 +223,28 @@ namespace gepmff
             }
         }
 
+        void applyParameters(FFmpegHelper.MediaObject mo, ListViewItem lvi)
+        {
+            int Scale;
+            if (comboBoxScale.Text != "(none)" && int.TryParse(comboBoxScale.Text, out Scale))
+                mo.scale = Scale;
+            else
+                mo.scale = -1;
+
+            mo.suffix = textBoxSuffix.Text;
+            mo.codec = comboBoxCodec.Text;
+            if (radioButtonCRF.Checked)
+                mo.CRF = trackBarCRF.Value;
+            else if (radioButtonBitrate.Checked)
+                mo.AvgBitrate = trackBarBitrate.Value;
+            mo.outdir = textBoxOutdir.Text;
+            mo.NewSize = 0;
+            mo.Status = FFmpegHelper.Status.New;
+
+            lvi.SubItems[columnHeaderParameters.Index] = new ListViewItem.ListViewSubItem(lvi, mo.Q.ToString());
+            lvi.SubItems[columnHeaderStatus.Index].Text = Enum.GetName(typeof(FFmpegHelper.Status), mo.Status);
+        }
+
         private async Task LoadFiles(string[] FileList)
         {
             // toolStripProgressBar1.Maximum += FileList.Length;
@@ -232,39 +254,26 @@ namespace gepmff
                 var mo = await Task.Run(new Func<FFmpegHelper.MediaObject>(() => ffmpegHelper.GetMediaObject(f)));
                 if (mo == null)
                     continue;
-
-                int Scale;
-                if (comboBoxScale.Text != "(none)" && int.TryParse(comboBoxScale.Text, out Scale))
-                    mo.scale = Scale;
-                else
-                    mo.scale = -1;
-
-                mo.suffix = textBoxSuffix.Text;
-                mo.codec = comboBoxCodec.Text;
-                if (radioButtonCRF.Checked)
-                    mo.CRF = trackBarCRF.Value;
-                else if (radioButtonBitrate.Checked)
-                    mo.AvgBitrate = trackBarBitrate.Value;
-                mo.outdir = textBoxOutdir.Text;
-                mo.FileInfo = new FileInfo(f);
-                mo.NewSize = 0;
-
-                if (mo.Video.StartsWith("hevc"))  /* || mo.Bitrate < trackBarBitrate.Value*/
+                if (mo.Video.StartsWith("hevc")) // FIXME
                     continue;
+
+
 
                 ListViewItem lvi = new ListViewItem(Path.GetFileName(f));
                 lvi.Tag = mo;
-                lvi.SubItems.Add(Path.GetDirectoryName(f));
-                lvi.SubItems.Add(mo.Bitrate.ToString());
-                lvi.SubItems.Add(mo.Duration.ToString());
-                lvi.SubItems.Add(mo.Video);
-                lvi.SubItems.Add(mo.Audio);
-                lvi.SubItems.Add(mo.FileInfo.Length.ToString("N0"));
-                lvi.SubItems.Add(""); // new size
-                lvi.SubItems.Add(mo.Resolution); // resolution
-                lvi.SubItems.Add(""); // new bitrate
-                lvi.SubItems.Add(mo.Q.ToString()); // parameters
-                lvi.SubItems.Add(""); // status
+                for (int i = 0;i < listViewFiles.Columns.Count; i++)
+                    lvi.SubItems.Add("");
+
+                mo.FileInfo = new FileInfo(f);
+                applyParameters(mo, lvi);
+
+                lvi.SubItems[columnHeaderFolder.Index] = new ListViewItem.ListViewSubItem(lvi, Path.GetDirectoryName(f));
+                lvi.SubItems[columnHeaderBitrate.Index] = new ListViewItem.ListViewSubItem(lvi, mo.Bitrate.ToString());
+                lvi.SubItems[columnHeaderDuration.Index] = new ListViewItem.ListViewSubItem(lvi, mo.Duration.ToString());
+                lvi.SubItems[columnHeaderVideo.Index] = new ListViewItem.ListViewSubItem(lvi, mo.Video);
+                lvi.SubItems[columnHeaderAudio.Index] = new ListViewItem.ListViewSubItem(lvi, mo.Audio);
+                lvi.SubItems[columnHeaderSize.Index] = new ListViewItem.ListViewSubItem(lvi, mo.FileInfo.Length.ToString("N0"));
+                lvi.SubItems[columnHeaderResolution.Index] = new ListViewItem.ListViewSubItem(lvi, mo.Resolution);
                 listViewFiles.Items.Add(lvi);
             }
         }
@@ -357,6 +366,28 @@ namespace gepmff
                 listViewFiles.ListViewItemSorter = new ListViewItemComparer(e.Column, listViewFiles.Sorting == SortOrder.Descending);
             }
 
+        }
+
+        private void OpenFileLocationToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ListViewItem lvi = null;
+            if (listViewFiles.SelectedItems.Count > 0)
+                lvi = listViewFiles.SelectedItems[0];
+            if (lvi == null)
+                return;
+
+            var mo = lvi.Tag as FFmpegHelper.MediaObject;
+            Process.Start("explorer.exe", "/select, " + mo.FileInfo.FullName);
+        }
+
+        private void ApplyNewParametersToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (ListViewItem lvi in listViewFiles.SelectedItems)
+            {
+                var mo = lvi.Tag as FFmpegHelper.MediaObject;
+                applyParameters(mo, lvi);
+
+            }
         }
     }
 }
