@@ -27,7 +27,7 @@ namespace gepmff
 
             comboBoxCodec.SelectedIndex = 0;
 
-            onChangeSetting(comboBoxCodec.Text, trackBarCRF.Value);
+            onChangeSetting(comboBoxCodec.Text, numericUpDownCRF.Value.ToString());
             ffmpegHelper = new FFmpegHelper();
             this.Text = ffmpegHelper.getFFmpegPath();
             if (this.Text == string.Empty)
@@ -38,26 +38,17 @@ namespace gepmff
             ffmpegHelper.Completed += FFmpegHelper_Completed;
         }
 
-        void onChangeSetting(string codec, int crf)
+        void onChangeSetting(string codec, string suffix)
         {
-            textBoxSuffix.Text = "-" + codec + "-" + crf.ToString();
-        }
-
-        private void trackBarCRF_Scroll(object sender, EventArgs e)
-        {
-            onChangeSetting(comboBoxCodec.Text, trackBarCRF.Value);
-            toolTip1.SetToolTip(sender as Control, (sender as TrackBar).Value.ToString());
-        }
-
-        private void trackBarBitrate_Scroll(object sender, EventArgs e)
-        {
-            onChangeSetting(comboBoxCodec.Text, trackBarBitrate.Value);
-            toolTip1.SetToolTip(sender as Control, (sender as TrackBar).Value.ToString());
+            textBoxSuffix.Text = "-" + codec + "-" + suffix;
         }
 
         private void comboBoxCodec_SelectedIndexChanged(object sender, EventArgs e)
         {
-            onChangeSetting(comboBoxCodec.Text, trackBarCRF.Value);
+            if (radioButtonCRF.Checked)
+                onChangeSetting(comboBoxCodec.Text, numericUpDownCRF.Value.ToString());
+            else if (radioButtonBitrate.Checked)
+                onChangeSetting(comboBoxCodec.Text, numericUpDownBitrate.Value.ToString());
         }
 
         void DeleteFile(string filename, int retry)
@@ -103,14 +94,13 @@ namespace gepmff
         {
             foreach (ListViewItem lvi in listViewFiles.Items)
             {
-                FFmpegHelper.MediaObject mo = null;
-                mo = lvi.Tag as FFmpegHelper.MediaObject;
-                if (mo.Status != FFmpegHelper.Status.New)
+                FFmpegHelper.EncodeObject eo = null;
+                eo = lvi.Tag as FFmpegHelper.EncodeObject;
+                if (eo.Status != FFmpegHelper.Status.New)
                     continue;
 
                 toolStripProgressBar1.Value = 0;
-                toolStripProgressBar1.Maximum = (int)mo.Duration.TotalMilliseconds;
-                Task.Factory.StartNew(() => ffmpegHelper.EncodeVideo(mo));
+                Task.Factory.StartNew(() => ffmpegHelper.EncodeVideo(eo));
                 return;
             }
 
@@ -124,20 +114,23 @@ namespace gepmff
                 return;
             }
 
-            var mo = e.MO;
+            var eo = e.EO;
 
             // find the MO and set new size
+            if (e.Result == FFmpegHelper.Status.Done)
+            {
+            }
 
             foreach (ListViewItem lvi in listViewFiles.Items)
             {
-                if (lvi.Tag != mo)
+                if (lvi.Tag != e.EO)
                     continue;
 
                 toolStripProgressBar1.Value = 0;
                 toolStripStatusLabelConsole.Text = "";
-                lvi.SubItems[columnHeaderNewSize.Index].Text = mo.NewSize.ToString("N0");
-                lvi.SubItems[columnHeaderNewBitrate.Index].Text = mo.NewBitrate.ToString("N0");
-                lvi.SubItems[columnHeaderStatus.Index].Text = Enum.GetName(typeof(FFmpegHelper.Status), mo.Status);
+                lvi.SubItems[columnHeaderNewSize.Index].Text = eo.NewSize.ToString("N0");
+                lvi.SubItems[columnHeaderNewBitrate.Index].Text = eo.NewBitrate.ToString("N0");
+                lvi.SubItems[columnHeaderStatus.Index].Text = Enum.GetName(typeof(FFmpegHelper.Status), eo.Status);
             }
 
             EncodeNextVideo();
@@ -158,20 +151,19 @@ namespace gepmff
             sb.Append(" bitrate=").Append(e.Info.bitrate);
             sb.Append(" size=").Append(e.Info.size);
             sb.Append(" time=").Append(e.Info.time.ToString(@"hh\:mm\:ss\.ff"));
-            toolStripStatusLabelConsole.Text = sb.ToString() + "  " + Path.GetFileName(e.MO.Filename);
+            toolStripStatusLabelConsole.Text = sb.ToString() + "  " + e.EO.MO.FileInfo.Name;
 
             {
                 int curr = (int)e.Info.time.TotalMilliseconds;
-                if (curr > toolStripProgressBar1.Maximum)
-                    toolStripProgressBar1.Maximum = curr;
-                if (curr >= 0)
+                toolStripProgressBar1.Maximum = (int)e.EO.MO.Duration.TotalMilliseconds;
+                if (curr >= 0 && curr <= toolStripProgressBar1.Maximum)
                     toolStripProgressBar1.Value = curr;
                 // if we have encoding 10min have it seem the bitrate is too high, cancel
                 if (curr > 0 && (curr / 1000 / 60) > 5
-                    && ((float)e.Info.bitrate / e.MO.Bitrate) > 0.75
-                    && ((float)e.Info.size * 1024 * e.MO.Duration.TotalMilliseconds / curr / e.MO.FileInfo.Length) > 0.8)
+                    && ((float)e.Info.bitrate / e.EO.MO.Bitrate) > 0.75
+                    && ((float)e.Info.size * 1024 * e.EO.MO.Duration.TotalMilliseconds / curr / e.EO.MO.FileInfo.Length) > 0.8)
                 {
-                    e.MO.Status = FFmpegHelper.Status.ErrorMayProduceLargerFile;
+                    e.EO.Status = FFmpegHelper.Status.ErrorMayProduceLargerFile;
                     ffmpegHelper.Kill();
                 }
             }
@@ -201,6 +193,8 @@ namespace gepmff
                 else if (File.Exists(f))
                     FileList.Add(f);
             }
+            // toolStripProgressBar1.Maximum = 0;
+            // toolStripProgressBar1.Value = 0;
             await LoadFiles(FileList.ToArray());
 
             foreach (string d in DirList)
@@ -217,33 +211,35 @@ namespace gepmff
         private async Task LoadDir(string dir)
         {
             await LoadFiles(Directory.GetFiles(dir));
-            foreach (string d in Directory.GetDirectories(dir))
+
+            string[] DirList = Directory.GetDirectories(dir);
+            foreach (string d in DirList)
             {
                 toolStripStatusLabelConsole.Text = d;
                 await LoadDir(d);
             }
         }
 
-        void applyParameters(FFmpegHelper.MediaObject mo, ListViewItem lvi)
+        void applyParameters(FFmpegHelper.EncodeObject eo, ListViewItem lvi)
         {
             int Scale;
             if (comboBoxScale.Text != "(none)" && int.TryParse(comboBoxScale.Text, out Scale))
-                mo.scale = Scale;
+                eo.scale = Scale;
             else
-                mo.scale = -1;
+                eo.scale = -1;
 
-            mo.suffix = textBoxSuffix.Text;
-            mo.codec = comboBoxCodec.Text;
+            eo.suffix = textBoxSuffix.Text;
+            eo.codec = comboBoxCodec.Text;
             if (radioButtonCRF.Checked)
-                mo.CRF = trackBarCRF.Value;
+                eo.CRF = (int)numericUpDownCRF.Value;
             else if (radioButtonBitrate.Checked)
-                mo.AvgBitrate = trackBarBitrate.Value;
-            mo.outdir = textBoxOutdir.Text;
-            mo.NewSize = 0;
-            mo.Status = FFmpegHelper.Status.New;
+                eo.AvgBitrate = (int)numericUpDownBitrate.Value;
+            eo.outdir = textBoxOutdir.Text;
+            eo.NewSize = 0;
+            eo.Status = FFmpegHelper.Status.New;
 
-            lvi.SubItems[columnHeaderParameters.Index] = new ListViewItem.ListViewSubItem(lvi, mo.Q.ToString());
-            lvi.SubItems[columnHeaderStatus.Index].Text = Enum.GetName(typeof(FFmpegHelper.Status), mo.Status);
+            lvi.SubItems[columnHeaderParameters.Index] = new ListViewItem.ListViewSubItem(lvi, eo.Q.ToString());
+            lvi.SubItems[columnHeaderStatus.Index].Text = Enum.GetName(typeof(FFmpegHelper.Status), eo.Status);
         }
 
         private async Task LoadFiles(string[] FileList)
@@ -251,6 +247,7 @@ namespace gepmff
             // toolStripProgressBar1.Maximum += FileList.Length;
             foreach (string f in FileList)
             {
+                // toolStripProgressBar1.Value++;
                 toolStripStatusLabelConsole.Text = Path.GetFileName(f);
                 var mo = await Task.Run(new Func<FFmpegHelper.MediaObject>(() => ffmpegHelper.GetMediaObject(f)));
                 if (mo == null)
@@ -258,15 +255,14 @@ namespace gepmff
                 if (mo.Video.StartsWith("hevc")) // FIXME
                     continue;
 
-
-
+                FFmpegHelper.EncodeObject eo = new FFmpegHelper.EncodeObject();
+                eo.MO = mo;
                 ListViewItem lvi = new ListViewItem(Path.GetFileName(f));
-                lvi.Tag = mo;
+                lvi.Tag = eo;
                 for (int i = 0;i < listViewFiles.Columns.Count; i++)
                     lvi.SubItems.Add("");
-
-                mo.FileInfo = new FileInfo(f);
-                applyParameters(mo, lvi);
+                 
+                applyParameters(eo, lvi);
 
                 lvi.SubItems[columnHeaderFolder.Index] = new ListViewItem.ListViewSubItem(lvi, Path.GetDirectoryName(f));
                 lvi.SubItems[columnHeaderBitrate.Index] = new ListViewItem.ListViewSubItem(lvi, mo.Bitrate.ToString());
@@ -303,34 +299,34 @@ namespace gepmff
 
             public int Compare(object x, object y)
             {
-                FFmpegHelper.MediaObject mox = (x as ListViewItem).Tag as FFmpegHelper.MediaObject;
-                FFmpegHelper.MediaObject moy = (y as ListViewItem).Tag as FFmpegHelper.MediaObject;
+                FFmpegHelper.EncodeObject eox = (x as ListViewItem).Tag as FFmpegHelper.EncodeObject;
+                FFmpegHelper.EncodeObject eoy = (y as ListViewItem).Tag as FFmpegHelper.EncodeObject;
 
                 int result = -1;
-                switch (col)
+                    switch (col)
                 {
                     case 2: // bitrate
-                        result = mox.Bitrate.CompareTo(moy.Bitrate);
+                        result = eox.MO.Bitrate.CompareTo(eoy.MO.Bitrate);
                         break;
                     case 3: // duration
-                        if (mox.Duration < moy.Duration)
+                        if (eox.MO.Duration < eoy.MO.Duration)
                             result = -1;
-                        else if (mox.Duration == moy.Duration)
+                        else if (eox.MO.Duration == eoy.MO.Duration)
                             result = 0;
                         else
                             result = 1;
                         break;
                     case 6:
-                        result = mox.FileInfo.Length.CompareTo(moy.FileInfo.Length);
+                        result = eox.MO.FileInfo.Length.CompareTo(eoy.MO.FileInfo.Length);
                         break;
                     case 7:
-                        result = mox.NewSize.CompareTo(moy.NewSize);
+                        result = eox.NewSize.CompareTo(eoy.NewSize);
                         break;
                     case 8: // resolution
                         for (int i = 0; i < 2; i++)
                         {
-                            int vx = int.Parse(mox.Resolution.Split('x')[i]);
-                            int vy = int.Parse(moy.Resolution.Split('x')[i]);
+                            int vx = int.Parse(eox.MO.Resolution.Split('x')[i]);
+                            int vy = int.Parse(eoy.MO.Resolution.Split('x')[i]);
                             result = vx.CompareTo(vy);
                             if (result != 0)
                                 break;
@@ -377,18 +373,33 @@ namespace gepmff
             if (lvi == null)
                 return;
 
-            var mo = lvi.Tag as FFmpegHelper.MediaObject;
-            Process.Start("explorer.exe", "/select, " + mo.FileInfo.FullName);
+            var eo = lvi.Tag as FFmpegHelper.EncodeObject;
+            if (File.Exists(eo.MO.FileInfo.FullName))
+                Process.Start("explorer.exe", "/select, " + eo.MO.FileInfo.FullName);
+            else
+                Process.Start("explorer.exe", eo.MO.FileInfo.DirectoryName);
         }
 
         private void ApplyNewParametersToolStripMenuItem_Click(object sender, EventArgs e)
         {
             foreach (ListViewItem lvi in listViewFiles.SelectedItems)
             {
-                var mo = lvi.Tag as FFmpegHelper.MediaObject;
-                applyParameters(mo, lvi);
+                var eo = lvi.Tag as FFmpegHelper.EncodeObject;
+                applyParameters(eo, lvi);
 
             }
+        }
+
+        private void numericUpDownCRF_ValueChanged(object sender, EventArgs e)
+        {
+            radioButtonCRF.Checked = true;
+            onChangeSetting(comboBoxCodec.Text, numericUpDownCRF.Value.ToString());
+        }
+
+        private void numericUpDownBitrate_ValueChanged(object sender, EventArgs e)
+        {
+            radioButtonBitrate.Checked = true;
+            onChangeSetting(comboBoxCodec.Text, numericUpDownBitrate.Value.ToString());
         }
     }
 }

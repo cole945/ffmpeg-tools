@@ -106,7 +106,8 @@ namespace gepmff
                 return null;
 
             MediaObject mo = new MediaObject();
-            mo.Filename = file;
+            mo.FileInfo = new FileInfo(file);
+
             Process process = new Process
             {
                 StartInfo = {
@@ -162,7 +163,7 @@ namespace gepmff
             return mo;
         }
 
-        private int executeFFmpeg(string args, MediaObject mo)
+        private int executeFFmpeg(string args, EncodeObject eo)
         {
 
             ffmpeg_process = new Process
@@ -180,71 +181,75 @@ namespace gepmff
             ffmpeg_process.Start();
             ffmpeg_process.PriorityClass = ProcessPriorityClass.BelowNormal;
 
-            Regex progressRegex = new Regex(@"(?<KEY>[a-z]+)=\s*(?<VALUE>[^ ]+)\s*", RegexOptions.Compiled);
-            Regex digRegex = new Regex(@"\d+");
-            Regex fltRegex = new Regex(@"\d+(\.\d+)?");
-            while (true)
+            try
             {
-                var line = ffmpeg_process.StandardError.ReadLine();
-                if (line == null || line == string.Empty)
-                    break;
-
-                MatchCollection mc = progressRegex.Matches(line);
-                if (mc.Count == 0)
-                    continue;
-
-                string[] groups = new string[] { "frame", "fps", "size", "time", "bitrate", "speed" };
-
-                Dictionary<string, string> info = new Dictionary<string, string>();
-                foreach (Match m in mc)
-                    info[m.Groups["KEY"].Value] = m.Groups["VALUE"].Value;
-
-                Debug.WriteLine(line);
-                ProgressInfo pi = new ProgressInfo();
-                string v;
-
-                info.TryGetValue("frame", out pi.frame);
-                if (info.TryGetValue("fps", out v))
+                Regex progressRegex = new Regex(@"(?<KEY>[a-z]+)=\s*(?<VALUE>[^ ]+)\s*", RegexOptions.Compiled);
+                Regex digRegex = new Regex(@"\d+");
+                Regex fltRegex = new Regex(@"\d+(\.\d+)?");
+                while (true)
                 {
-                    Match m = fltRegex.Match(v);
-                    if (m.Success)
-                        float.TryParse(m.Groups[0].Value, out pi.fps);
-                }
+                    var line = ffmpeg_process.StandardError.ReadLine();
+                    if (line == null || line == string.Empty)
+                        break;
 
-                if (info.TryGetValue("size", out v))
-                {
-                    Match m = digRegex.Match(v);
-                    if (m.Success)
-                        int.TryParse(m.Groups[0].Value, out pi.size);
-                }
-                if (info.TryGetValue("time", out v))
-                {
-                    TimeSpan.TryParse(v, out pi.time);
-                }
-                if (info.TryGetValue("bitrate", out v))
-                {
-                    Match m = fltRegex.Match(v);
-                    if (m.Success)
+                    MatchCollection mc = progressRegex.Matches(line);
+                    if (mc.Count == 0)
+                        continue;
+
+                    string[] groups = new string[] { "frame", "fps", "size", "time", "bitrate", "speed" };
+
+                    Dictionary<string, string> info = new Dictionary<string, string>();
+                    foreach (Match m in mc)
+                        info[m.Groups["KEY"].Value] = m.Groups["VALUE"].Value;
+
+                    Debug.WriteLine(line);
+                    ProgressInfo pi = new ProgressInfo();
+                    string v;
+
+                    info.TryGetValue("frame", out pi.frame);
+                    if (info.TryGetValue("fps", out v))
                     {
-                        float.TryParse(m.Groups[0].Value, out pi.bitrate);
-                        mo.NewBitrate = (int)pi.bitrate;
+                        Match m = fltRegex.Match(v);
+                        if (m.Success)
+                            float.TryParse(m.Groups[0].Value, out pi.fps);
+                    }
+
+                    if (info.TryGetValue("size", out v))
+                    {
+                        Match m = digRegex.Match(v);
+                        if (m.Success)
+                            int.TryParse(m.Groups[0].Value, out pi.size);
+                    }
+                    if (info.TryGetValue("time", out v))
+                    {
+                        TimeSpan.TryParse(v, out pi.time);
+                    }
+                    if (info.TryGetValue("bitrate", out v))
+                    {
+                        Match m = fltRegex.Match(v);
+                        if (m.Success)
+                        {
+                            float.TryParse(m.Groups[0].Value, out pi.bitrate);
+                            eo.NewBitrate = (int)pi.bitrate;
+                        }
+                    }
+                    if (info.TryGetValue("speed", out v))
+                    {
+                        Match m = fltRegex.Match(v);
+                        if (m.Success)
+                            float.TryParse(m.Groups[0].Value, out pi.speed);
+                    }
+
+                    if (ProgressUpdate != null)
+                    {
+                        ProgressInfoEventArgs e = new ProgressInfoEventArgs();
+                        e.Info = pi;
+                        e.EO = eo;
+                        ProgressUpdate(this, e);
                     }
                 }
-                if (info.TryGetValue("speed", out v))
-                {
-                    Match m = fltRegex.Match(v);
-                    if (m.Success)
-                        float.TryParse(m.Groups[0].Value, out pi.speed);
-                }
-
-                if (ProgressUpdate != null)
-                {
-                    ProgressInfoEventArgs e = new ProgressInfoEventArgs();
-                    e.Info = pi;
-                    e.MO = mo;
-                    ProgressUpdate(this, e);
-                }
             }
+            finally { }
 
             if (!ffmpeg_process.WaitForExit(500))
             {
@@ -253,34 +258,33 @@ namespace gepmff
             }
             int exitcode = ffmpeg_process.ExitCode;
             ffmpeg_process.Dispose();
-            ffmpeg_process = null;
             return exitcode;
         }
 
-        public Status EncodeVideo(MediaObject mo)
+        public Status EncodeVideo(EncodeObject eo)
         {
             Status Result = Status.Done;
-            if (!File.Exists(mo.Filename))
+            if (!File.Exists(eo.MO.FileInfo.FullName))
             {
                 if (Completed != null)
                 {
                     CompletedEventArgs e = new CompletedEventArgs();
                     e.Result = Status.ErrorFileNotFound;
-                    mo.Status = Status.ErrorFileNotFound;
-                    e.MO = mo;
+                    eo.Status = Status.ErrorFileNotFound;
+                    e.EO = eo;
                     Completed(this, e);
                 }
             }
 
-            string filename = Path.GetFileNameWithoutExtension(mo.Filename);
-            string ext = Path.GetExtension(mo.Filename);
+            string filename = Path.GetFileNameWithoutExtension(eo.MO.FileInfo.FullName);
+            string ext = eo.MO.FileInfo.Extension;
             // -i 101S102_CT01V01.mp4 -c:v libx265 -vf scale=-1:720 -preset medium -crf 23 -acodec copy 101S102_CT01V01-x265.mp4
             // nvenc_hevc  hevc_qsv
 
             // \"'-1':'if(gt(a,720),720,-1)'\"
-            if (mo.outdir == string.Empty)
-                mo.outdir = Path.GetDirectoryName(mo.Filename);
-            string outfilename = Path.Combine(mo.outdir, filename) + mo.suffix + ".mp4";
+            if (eo.outdir == string.Empty)
+                eo.outdir = eo.MO.FileInfo.DirectoryName;
+            string outfilename = Path.Combine(eo.outdir, filename) + eo.suffix + ".mp4";
 
             if (File.Exists(outfilename))
             {
@@ -288,80 +292,88 @@ namespace gepmff
                 {
                     CompletedEventArgs e = new CompletedEventArgs();
                     e.Result = Status.ErrorFileAlreadyExists;
-                    mo.Status = Status.ErrorFileAlreadyExists;
-                    e.MO = mo;
+                    eo.Status = Status.ErrorFileAlreadyExists;
+                    e.EO = eo;
                     Completed(this, e);
                 }
                 return Status.ErrorFileAlreadyExists;
             }
 
             int exitcode = -1;
-            if(mo.QType == MediaObject.QualityEnum.CRF)
+            try
             {
-                StringBuilder arguments = new StringBuilder();
-                arguments.Append(" -i \"").Append(mo.Filename).Append("\"");
-                arguments.Append(" -c:v ").Append(mo.codec);
-                if (mo.scale > 0)
-                    arguments.Append(" -vf scale=\"'-1':'if(gt(ih," + mo.scale.ToString() + ")," + mo.scale.ToString() + ",-1)':flags=lanczos\"");
-                arguments.Append(" -preset medium");
-                arguments.Append(" -crf ").Append(mo.Q);
-                if (mo.Audio.StartsWith("aac"))
-                    arguments.Append(" -acodec copy ");
-                arguments.Append(" \"").Append(outfilename).Append("\"");
-
-                exitcode = executeFFmpeg(arguments.ToString(), mo);
-            }
-            else if (mo.QType == MediaObject.QualityEnum.AvgBitrate)
-            {
-                StringBuilder arguments = new StringBuilder();
-
-                if (mo.codec == "libx264" || mo.codec == "libx265")
+                if (eo.QType == EncodeObject.QualityEnum.CRF)
                 {
-                    // first pass
-                    arguments.Append(" -y -i \"").Append(mo.Filename).Append("\"");
-                    arguments.Append(" -c:v ").Append(mo.codec);
-                    if (mo.scale > 0)
-                        arguments.Append(" -vf scale=\"'-1':'if(gt(ih," + mo.scale.ToString() + ")," + mo.scale.ToString() + ",-1)':flags=lanczos\"");
+                    StringBuilder arguments = new StringBuilder();
+                    arguments.Append(" -i \"").Append(eo.MO.FileInfo.FullName).Append("\"");
+                    arguments.Append(" -c:v ").Append(eo.codec);
+                    if (eo.scale > 0)
+                        arguments.Append(" -vf scale=\"'-1':'if(gt(ih," + eo.scale.ToString() + ")," + eo.scale.ToString() + ",-1)':flags=lanczos\"");
                     arguments.Append(" -preset medium");
-                    arguments.Append(" -b:v ").Append(mo.Q).Append("k");
-                    arguments.Append(" -an");
-                    if (mo.codec == "libx265")
-                        arguments.Append(" -x265-params no-slow-firstpass=1:pass=1");
-                    else if (mo.codec == "libx264")
-                        arguments.Append(" -pass 1 -fastfirstpass 1 ");
-                    arguments.Append(" -f mp4");
-                    arguments.Append(" NUL");
-                    exitcode = executeFFmpeg(arguments.ToString(), mo);
-                }
-                else
-                    exitcode = 0;
-
-                if (exitcode == 0)
-                {
-                    arguments.Clear();
-                    arguments.Append(" -i \"").Append(mo.Filename).Append("\"");
-                    arguments.Append(" -c:v ").Append(mo.codec);
-                    if (mo.scale > 0)
-                        arguments.Append(" -vf scale=\"'-1':'if(gt(ih," + mo.scale.ToString() + ")," + mo.scale.ToString() + ",-1)':flags=lanczos\"");
-                    arguments.Append(" -preset medium");
-                    arguments.Append(" -b:v ").Append(mo.Q).Append("k");
-                    arguments.Append(" -x265-params pass=2");
-                    if (mo.Audio.StartsWith("aac"))
+                    arguments.Append(" -crf ").Append(eo.Q);
+                    if (eo.MO.Audio.StartsWith("aac"))
                         arguments.Append(" -acodec copy ");
                     arguments.Append(" \"").Append(outfilename).Append("\"");
 
-                    exitcode = executeFFmpeg(arguments.ToString(), mo);
+                    exitcode = executeFFmpeg(arguments.ToString(), eo);
                 }
+                else if (eo.QType == EncodeObject.QualityEnum.AvgBitrate)
+                {
+                    StringBuilder arguments = new StringBuilder();
+
+                    if (eo.codec == "libx264" || eo.codec == "libx265")
+                    {
+                        // first pass
+                        arguments.Append(" -y -i \"").Append(eo.MO.FileInfo.FullName).Append("\"");
+                        arguments.Append(" -c:v ").Append(eo.codec);
+                        if (eo.scale > 0)
+                            arguments.Append(" -vf scale=\"'-1':'if(gt(ih," + eo.scale.ToString() + ")," + eo.scale.ToString() + ",-1)':flags=lanczos\"");
+                        arguments.Append(" -preset medium");
+                        arguments.Append(" -b:v ").Append(eo.Q).Append("k");
+                        arguments.Append(" -an");
+                        if (eo.codec == "libx265")
+                            arguments.Append(" -x265-params no-slow-firstpass=1:pass=1");
+                        else if (eo.codec == "libx264")
+                            arguments.Append(" -pass 1 -fastfirstpass 1 ");
+                        arguments.Append(" -f mp4");
+                        arguments.Append(" NUL");
+                        exitcode = executeFFmpeg(arguments.ToString(), eo);
+                    }
+                    else
+                        exitcode = 0;
+                    if (exitcode == 0)
+                    {
+                        arguments.Clear();
+                        arguments.Append(" -i \"").Append(eo.MO.FileInfo.FullName).Append("\"");
+                        arguments.Append(" -c:v ").Append(eo.codec);
+                        if (eo.scale > 0)
+                            arguments.Append(" -vf scale=\"'-1':'if(gt(ih," + eo.scale.ToString() + ")," + eo.scale.ToString() + ",-1)':flags=lanczos\"");
+                        arguments.Append(" -preset medium");
+                        arguments.Append(" -b:v ").Append(eo.Q).Append("k");
+                        if (eo.codec == "libx265")
+                            arguments.Append(" -x265-params pass=2");
+                        else
+                            arguments.Append(" -pass 2");
+                        if (eo.MO.Audio.StartsWith("aac"))
+                            arguments.Append(" -acodec copy ");
+                        arguments.Append(" \"").Append(outfilename).Append("\"");
+
+                        exitcode = executeFFmpeg(arguments.ToString(), eo);
+                    }
+                }
+            } catch(Exception e)
+            {
+                eo.Status = Status.ErrorUnknown;
             }
 
-            if (mo.Status != Status.New)
+            if (eo.Status != Status.New)
             {
                 // Set by event handler
-                Result = mo.Status;
+                Result = eo.Status;
             }
             else if (exitcode == 0 && Result == Status.Done)
             {
-                mo.NewSize = (new FileInfo(outfilename)).Length;
+                eo.NewSize = (new FileInfo(outfilename)).Length;
             }
             else if (exitcode != 0 && Result != Status.Done)
                 Result = Status.ErrorUnknown;
@@ -370,8 +382,8 @@ namespace gepmff
             {
                 CompletedEventArgs e = new CompletedEventArgs();
                 e.Result = Result;
-                mo.Status = Result;
-                e.MO = mo;
+                eo.Status = Result;
+                e.EO = eo;
                 Completed(this, e);
             }
 
@@ -396,8 +408,10 @@ namespace gepmff
             ErrorOutpuFileIsLarger,
             ErrorUnknown
         }
-        public class MediaObject
+
+        public class EncodeObject
         {
+            public MediaObject MO;
             public enum QualityEnum
             {
                 CRF,
@@ -410,22 +424,24 @@ namespace gepmff
             public string suffix = string.Empty;
             public string codec = string.Empty;
             public string outdir = string.Empty;
+            public string outfile = string.Empty;
             public int scale = -1;
 
-            public string Filename;
+            public long NewSize = 0;
+            public int NewBitrate = 0;
+            public Status Status = Status.New;
+
+            public int CRF { set { Q = value; QType = QualityEnum.CRF; } get { return Q; } }
+            public int AvgBitrate { set { Q = value; QType = QualityEnum.AvgBitrate; } get { return Q; } }
+        }
+        public class MediaObject
+        {
             public string Video = string.Empty;
             public string Audio = string.Empty;
             public string Resolution = string.Empty;
             public TimeSpan Duration = TimeSpan.Zero;
             public int Bitrate = 0;
             public FileInfo FileInfo;
-
-            public long NewSize = 0;
-            public int NewBitrate = 0;
-            public Status Status = Status.New;
-
-            public int CRF { set { Q = value; QType = QualityEnum.CRF; } }
-            public int AvgBitrate { set { Q = value; QType = QualityEnum.AvgBitrate; } }
         }
         public class ProgressInfo
         {
@@ -444,12 +460,12 @@ namespace gepmff
         public class ProgressInfoEventArgs : EventArgs
         {
             public ProgressInfo Info { get; set; }
-            public MediaObject MO { get; set; }
+            public EncodeObject EO { get; set; }
         }
         public class CompletedEventArgs : EventArgs
         {
             public Status Result { get; set; }
-            public MediaObject MO { get; set; }
+            public EncodeObject EO { get; set; }
         }
     }
 }
