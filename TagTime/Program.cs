@@ -7,6 +7,8 @@ using System.Diagnostics;
 using Shell32;
 using System.Text.RegularExpressions;
 using System.IO;
+using System.Drawing;
+using System.Drawing.Imaging;
 
 namespace TagTime
 {
@@ -31,8 +33,9 @@ namespace TagTime
             public int Bitrate = 0;
 
             public DateTime CreatedTime = DateTime.Now;
-
         }
+
+        static int delay = 0;
 
         static string[] StreamStringSplit(string s)
         {
@@ -103,7 +106,9 @@ namespace TagTime
 
                 if (key == "creation_time")
                 {
-                    mo.CreatedTime = DateTime.Parse(value).ToLocalTime();
+                    DateTime newDateTime = DateTime.Parse(value).ToLocalTime();
+                    if (mo.CreatedTime == DateTime.MinValue || newDateTime < mo.CreatedTime)
+                        mo.CreatedTime = newDateTime;
                 }
                 else if (key == "Duration")
                 {
@@ -142,8 +147,260 @@ namespace TagTime
             return mo;
         }
 
+        static void processPicture(string v)
+        {
+            Image image = new Bitmap(v);
+            PropertyItem[] propItems = image.PropertyItems;
+
+            Font font = new Font("Consolas", image.Height / 40);
+            Brush fb = new SolidBrush(Color.FromArgb(0xff, 0xff, 0));
+            Brush bb = new SolidBrush(Color.FromArgb(30, 30, 30));
+            foreach (PropertyItem propItem in propItems)
+            {
+                string valstr;
+                switch (propItem.Id)
+                {
+                    //case 0x0007: // PropertyTagGpsGpsTime
+                    //    valstr = System.Text.Encoding.ASCII.GetString(propItem.Value, 0, propItem.Len);
+                    //    break;
+                    case 0x0132: // PropertyTagDateTime
+                        valstr = System.Text.Encoding.ASCII.GetString(propItem.Value, 0, propItem.Len);
+                        break;
+                    case 0x5033: // PropertyTagThumbnailDateTime
+                        valstr = System.Text.Encoding.ASCII.GetString(propItem.Value, 0, propItem.Len);
+                        break;
+                    //case 0x829A: // PropertyTagExifExposureTime
+                    //    valstr = System.Text.Encoding.ASCII.GetString(propItem.Value, 0, propItem.Len);
+                    //    break;
+                    default:
+                        valstr = "";
+                        break;
+                }
+
+                if (valstr == string.Empty)
+                    continue;
+                // Console.WriteLine("{0}: {1}", propItem.Id.ToString("x"), valstr);
+                DateTime CreatedTime;
+                while (valstr.Last() == '\0')
+                    valstr = valstr.Substring(0, valstr.Length - 1);
+                if (!DateTime.TryParse(valstr, out CreatedTime))
+                {
+                    if (!DateTime.TryParseExact(valstr, "yyyy:MM:dd HH:mm:ss",
+                                 System.Globalization.CultureInfo.InvariantCulture,
+                                 System.Globalization.DateTimeStyles.None, out CreatedTime))
+                        break;
+                }
+
+                valstr = CreatedTime.ToString("yyyy/MM/dd HH:mm:ss");
+                var g = Graphics.FromImage(image);
+                SizeF sf = g.MeasureString(valstr, font);
+
+                int x = (int)(image.Width - sf.Width - font.Size);
+                int y = 0;
+                for (int i = 0; i < 9; i++)
+                {
+                    int xx = x + ((i % 3) - 1) * 3;
+                    int yy = y + ((i / 3) - 1) * 3;
+
+                    g.DrawString(valstr, font, bb, xx, yy);
+                }
+                g.DrawString(valstr, font, fb, x, y);
+
+                string dir = Path.GetDirectoryName(v);
+                string stem = Path.GetFileNameWithoutExtension(v);
+                string ext = Path.GetExtension(v);
+                string tagedFile = Path.Combine(dir, stem + "_" + CreatedTime.ToString("yyyyMMddHHmmss") + ext);
+                image.Save(tagedFile);
+                g.Dispose();
+                image.Dispose();
+
+                string DateString = CreatedTime.ToString("yyyyMMdd");
+                DateString = Path.Combine(Path.GetDirectoryName(v), DateString);
+                if (!Directory.Exists(DateString))
+                    Directory.CreateDirectory(DateString);
+                string prefix = CreatedTime.ToString("MMddHHmmss");
+
+                File.Move(v, Path.Combine(DateString, prefix + "_" + Path.GetFileName(v)));
+                File.Move(tagedFile, Path.Combine(DateString, prefix + "_" + Path.GetFileName(tagedFile)));
+
+                break;
+            }
+
+
+        }
+        static void processVideo(string v)
+        {
+            MediaObject mo = new MediaObject();
+            mo = GetMediaObject(v, mo);
+
+            // Fix recording time offset issue.
+            DateTime CreatedTime = mo.CreatedTime;
+            double TotalSeconds = mo.Duration.TotalSeconds;
+            CreatedTime = CreatedTime.AddSeconds(-TotalSeconds + delay);
+
+            string DateString = CreatedTime.ToString("yyyyMMdd");
+            DateString = Path.Combine(Path.GetDirectoryName(v), DateString);
+            if (!Directory.Exists(DateString))
+                Directory.CreateDirectory(DateString);
+
+            string prefix = CreatedTime.ToString("yyyyMMddHHmmss");
+            string fn = "";
+            if (!Path.GetFileName(v).StartsWith(prefix))
+            {
+                // fn = Path.Combine(Path.GetDirectoryName(v), prefix + Path.GetFileName(v));
+                fn = Path.Combine(Path.GetDirectoryName(v), prefix + Path.GetExtension(v));
+                File.Move(v, fn);
+            }
+            else
+            {
+                fn = v;
+            }
+
+
+            string SubFilePath = Path.Combine(Path.GetDirectoryName(fn), Path.GetFileNameWithoutExtension(fn)) + ".ass";
+            StreamWriter w = new StreamWriter(SubFilePath, false);
+
+            if (template == string.Empty)
+            {
+                w.WriteLine("[Script Info]");
+                w.WriteLine("ScriptType: v4.00+");
+                w.WriteLine("Collisions: Normal");
+                w.WriteLine("Timer: 100,0000");
+                w.WriteLine("");
+
+                // &HAABBGGRR&
+                w.WriteLine("[V4+ Styles]");
+                w.WriteLine("Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding");
+
+                // https://github.com/tanersener/mobile-ffmpeg/blob/master/src/libass/libass/ass.c
+                List<string> styleList = new List<string>();
+                // Name
+                styleList.Add("Default");
+                // Fontname, Fontsize
+                styleList.Add("Consolas");
+                styleList.Add("8");
+                // PrimaryColour, SecondaryColour, OutlineColour, BackColour
+                styleList.Add("&H00B0B0B0");
+                styleList.Add("&H00B4FCFC");
+                styleList.Add("&H00000000");
+                styleList.Add("&H0000FF00");
+                // Bold, Italic, Underline, StrikeOut
+                styleList.Add("-1");
+                styleList.Add("0");
+                styleList.Add("0");
+                styleList.Add("0");
+                // ScaleX, ScaleY
+                styleList.Add("100.0");
+                styleList.Add("100.0");
+                // Spacing, Angle
+                styleList.Add("0");
+                styleList.Add("0");
+                // BorderStyle, Outline, Shadow
+                styleList.Add("1");
+                styleList.Add("0.3");
+                styleList.Add("0");
+                // Alignment
+                styleList.Add("9");
+                // MarginL, MarginR, MarginV
+                styleList.Add("3");
+                styleList.Add("3");
+                styleList.Add("1");
+                // Encoding
+                styleList.Add("0");
+                w.WriteLine("Style: " + string.Join(",", styleList));
+
+                // Style:  Default, Consolas, 8,        &H00B0B0B0&,   &H00B4FCFC&,     &H00000000&,   &H0000FF00&,  0,    0,      1,           0.3,     0,      7,         10,      5,       1,       0,          1
+
+                // -1,0,0,0,100,100,0.00,0.00,1,1.00,2.00,2,30,30,30,0
+            }
+            else
+            {
+                w.WriteLine(template);
+            }
+
+
+            w.WriteLine("");
+
+            w.WriteLine("[Events]");
+            w.WriteLine("Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text");
+            for (int i = 0; i < TotalSeconds + 20; i++)
+            {
+                // Console.WriteLine(mo.CreatedTime.ToLocalTime());
+                // 1
+                // 00:00:00,000-- > 00:00:01,000
+                // {\a7} 111
+
+                w.WriteLine(String.Format("Dialogue: 0,{0}.00,{1}.00,Default, NTP,0000,0000,0000,,{2}",
+                    TimeSpan.FromSeconds(i).ToString(@"hh\:mm\:ss"),
+                    TimeSpan.FromSeconds(i + 1).ToString(@"hh\:mm\:ss"),
+                    CreatedTime.AddSeconds(i).ToString("yyyy/MM/dd  HH:mm:ss")));
+                /*
+                w.WriteLine(i);
+                w.WriteLine(
+                    TimeSpan.FromSeconds(i).ToString(@"hh\:mm\:ss") + ",000" +
+                    " --> " +
+                    TimeSpan.FromSeconds(i + 1).ToString(@"hh\:mm\:ss") + ",000");
+                w.WriteLine("{\\a7} <font face=\"Consolas\" size=\"12\">" + mo.CreatedTime.AddSeconds(i).ToString("yyyy/MM/dd  HH:mm:ss") + "</font>");
+                w.WriteLine("");
+                */
+            }
+            w.Close();
+
+            try
+            {
+
+                File.Move(fn, Path.Combine(DateString, Path.GetFileName(fn)));
+                File.Move(SubFilePath, Path.Combine(DateString, Path.GetFileName(SubFilePath)));
+            }catch (Exception e)
+            {
+                Console.WriteLine( e.Message);
+                }
+        }
+
+        static string template = string.Empty;
+
         static void Main(string[] args)
         {
+            string name = System.AppDomain.CurrentDomain.FriendlyName;
+            Regex r = new Regex(@"(?<NAME>.*?)((?<SIGN>[+-])(?<NUM>[0-9]+))?\.exe");
+
+            Match m = r.Match(name);
+            if (m.Success)
+            {
+                if (int.TryParse(m.Groups["NUM"].Value, out delay))
+                {
+                    if (m.Groups["SIGN"].Value == "-")
+                    {
+                        delay = -delay;
+                    }
+
+                }
+
+                string tmpName = string.Empty;
+                string mainName = m.Groups["NAME"].Value;
+                if (File.Exists(Path.Combine(Environment.CurrentDirectory, mainName + ".ass")))
+                {
+                    tmpName = Path.Combine(Environment.CurrentDirectory, mainName + ".ass");
+                }
+                else if (File.Exists(Path.Combine(Environment.CurrentDirectory, mainName + ".ssa")))
+                {
+                    tmpName = Path.Combine(Environment.CurrentDirectory, mainName + ".ssa");
+                }
+                if (File.Exists(tmpName))
+                {
+                    try
+                    {
+                        using (StreamReader sr = new StreamReader(tmpName))
+                        {
+                            template = sr.ReadToEnd();
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        template = string.Empty;
+                    }
+                }
+            }
 
             // initial ffmpeg
             string[] ffmpeg_dir = {
@@ -179,74 +436,11 @@ namespace TagTime
 
             foreach (string v in args)
             {
-                MediaObject mo = new MediaObject();
-                mo = GetMediaObject(v, mo);
-
-                // Fix recording time offset issue.
-                DateTime CreatedTime = mo.CreatedTime;
-                double TotalSeconds = mo.Duration.TotalSeconds;
-                CreatedTime = CreatedTime.AddSeconds(-TotalSeconds);
-
-                string DateString = CreatedTime.ToString("yyyyMMdd");
-                DateString = Path.Combine(Path.GetDirectoryName(v), DateString);
-                if (!Directory.Exists(DateString))
-                    Directory.CreateDirectory(DateString);
-
-                string prefix = CreatedTime.ToString("MMddHHmmss");
-                string fn = "";
-                if (!Path.GetFileName(v).StartsWith(prefix))
-                {
-                    // fn = Path.Combine(Path.GetDirectoryName(v), prefix + Path.GetFileName(v));
-                    fn = Path.Combine(Path.GetDirectoryName(v), prefix + Path.GetExtension(v));
-                    File.Move(v, fn);
-                }
+                string ext = Path.GetExtension(v).ToLower();
+                if (ext == ".jpg")
+                    processPicture(v);
                 else
-                {
-                    fn = v;
-                }
-
-
-                string SubFilePath = Path.Combine(Path.GetDirectoryName(fn), Path.GetFileNameWithoutExtension(fn)) + ".ssa";
-                StreamWriter w = new StreamWriter(SubFilePath, false);
-
-                w.WriteLine("[Script Info]");
-                w.WriteLine("ScriptType: v4.00");
-                w.WriteLine("Collisions: Normal");
-                w.WriteLine("Timer: 100,0000");
-                w.WriteLine("");
-
-                w.WriteLine("[V4 Styles]");
-                w.WriteLine("Format: Name,    Fontname, Fontsize, PrimaryColour, SecondaryColour, TertiaryColour, BackColour,  Bold, Italic, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, AlphaLevel, Encoding");
-                w.WriteLine("Style:  Default, Consolas, 12,       65535,         11861244,        11861244,       -2147483640, 0,    0,      1,           1,       0,      7,         10,      10,      10,      0,          1");
-                w.WriteLine("");
-
-                w.WriteLine("[Events]");
-                w.WriteLine("Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text");
-                for (int i = 0; i < TotalSeconds + 1; i++)
-                {
-                    // Console.WriteLine(mo.CreatedTime.ToLocalTime());
-                    // 1
-                    // 00:00:00,000-- > 00:00:01,000
-                    // {\a7} 111
-
-                    w.WriteLine(String.Format("Dialogue: 0,{0}.00,{1}.00,Default, NTP,0000,0000,0000,,{2}",
-                        TimeSpan.FromSeconds(i).ToString(@"hh\:mm\:ss"),
-                        TimeSpan.FromSeconds(i + 1).ToString(@"hh\:mm\:ss"),
-                        CreatedTime.AddSeconds(i).ToString("yyyy/MM/dd  HH:mm:ss")));
-                    /*
-                    w.WriteLine(i);
-                    w.WriteLine(
-                        TimeSpan.FromSeconds(i).ToString(@"hh\:mm\:ss") + ",000" +
-                        " --> " +
-                        TimeSpan.FromSeconds(i + 1).ToString(@"hh\:mm\:ss") + ",000");
-                    w.WriteLine("{\\a7} <font face=\"Consolas\" size=\"12\">" + mo.CreatedTime.AddSeconds(i).ToString("yyyy/MM/dd  HH:mm:ss") + "</font>");
-                    w.WriteLine("");
-                    */
-                }
-                w.Close();
-
-                File.Move(fn, Path.Combine(DateString, Path.GetFileName(fn)));
-                File.Move(SubFilePath, Path.Combine(DateString, Path.GetFileName(SubFilePath)));
+                    processVideo(v);
             }
 
         }

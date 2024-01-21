@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29201.188
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33403.182
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gepmff", "gepmff\gepmff.csproj", "{D0909BEC-09E9-48EB-9508-B5D10AA6CDF7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TagTime", "TagTime\TagTime.csproj", "{59E3A149-3BBF-4E0E-8009-CCD5E666B46F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaUtils", "MediaUtils\MediaUtils.csproj", "{2751E5F6-60A6-419A-935B-4B591D54D3D0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{59E3A149-3BBF-4E0E-8009-CCD5E666B46F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{59E3A149-3BBF-4E0E-8009-CCD5E666B46F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{59E3A149-3BBF-4E0E-8009-CCD5E666B46F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2751E5F6-60A6-419A-935B-4B591D54D3D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2751E5F6-60A6-419A-935B-4B591D54D3D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2751E5F6-60A6-419A-935B-4B591D54D3D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2751E5F6-60A6-419A-935B-4B591D54D3D0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

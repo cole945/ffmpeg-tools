@@ -32,6 +32,7 @@
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripProgressBar1 = new System.Windows.Forms.ToolStripProgressBar();
             this.toolStripStatusLabelConsole = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabelFilename = new System.Windows.Forms.ToolStripStatusLabel();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
@@ -40,6 +41,7 @@
             this.columnHeaderFolder = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeaderBitrate = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeaderDuration = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeaderFPS = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeaderVideo = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeaderAudio = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeaderSize = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -55,8 +57,34 @@
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.textBoxLog = new System.Windows.Forms.TextBox();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.textBoxAudioBitrate = new System.Windows.Forms.TextBox();
+            this.label11 = new System.Windows.Forms.Label();
+            this.comboBoxAudio = new System.Windows.Forms.ComboBox();
+            this.label10 = new System.Windows.Forms.Label();
+            this.comboBoxYADIF = new System.Windows.Forms.ComboBox();
+            this.maskedTextBoxFPS = new System.Windows.Forms.MaskedTextBox();
+            this.label9 = new System.Windows.Forms.Label();
+            this.label8 = new System.Windows.Forms.Label();
+            this.label7 = new System.Windows.Forms.Label();
+            this.comboBoxVsync = new System.Windows.Forms.ComboBox();
+            this.multipasComboBox = new System.Windows.Forms.ComboBox();
+            this.seekerToTextBox = new System.Windows.Forms.MaskedTextBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.maskedBF = new System.Windows.Forms.MaskedTextBox();
+            this.comboBRefMode = new System.Windows.Forms.ComboBox();
+            this.checkBoxSpatialAQ = new System.Windows.Forms.CheckBox();
+            this.checkBoxTemporalAQ = new System.Windows.Forms.CheckBox();
+            this.checkHwDec = new System.Windows.Forms.CheckBox();
+            this.checkBoxSkipIfNotSmaller = new System.Windows.Forms.CheckBox();
+            this.seekerTextBox = new System.Windows.Forms.MaskedTextBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.checkBoxReplaceOldFile = new System.Windows.Forms.CheckBox();
+            this.numericUpDownBitrate = new System.Windows.Forms.NumericUpDown();
+            this.numericUpDownCRF = new System.Windows.Forms.NumericUpDown();
             this.radioButtonBitrate = new System.Windows.Forms.RadioButton();
             this.radioButtonCRF = new System.Windows.Forms.RadioButton();
+            this.labelBF = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.comboBoxScale = new System.Windows.Forms.ComboBox();
             this.checkBoxDeleteWhenDone = new System.Windows.Forms.CheckBox();
@@ -67,8 +95,6 @@
             this.buttonStart = new System.Windows.Forms.Button();
             this.textBoxOutdir = new System.Windows.Forms.TextBox();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-            this.numericUpDownCRF = new System.Windows.Forms.NumericUpDown();
-            this.numericUpDownBitrate = new System.Windows.Forms.NumericUpDown();
             this.statusStrip1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.tabControl1.SuspendLayout();
@@ -76,8 +102,8 @@
             this.contextMenuStrip1.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.panel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownCRF)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownBitrate)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownCRF)).BeginInit();
             this.SuspendLayout();
             // 
             // statusStrip1
@@ -85,22 +111,30 @@
             this.statusStrip1.ImageScalingSize = new System.Drawing.Size(40, 40);
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripProgressBar1,
-            this.toolStripStatusLabelConsole});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 538);
+            this.toolStripStatusLabelConsole,
+            this.toolStripStatusLabelFilename});
+            this.statusStrip1.Location = new System.Drawing.Point(0, 528);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(1189, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(1241, 32);
             this.statusStrip1.TabIndex = 2;
             this.statusStrip1.Text = "statusStrip1";
             // 
             // toolStripProgressBar1
             // 
             this.toolStripProgressBar1.Name = "toolStripProgressBar1";
-            this.toolStripProgressBar1.Size = new System.Drawing.Size(200, 16);
+            this.toolStripProgressBar1.Size = new System.Drawing.Size(200, 24);
             // 
             // toolStripStatusLabelConsole
             // 
             this.toolStripStatusLabelConsole.Name = "toolStripStatusLabelConsole";
-            this.toolStripStatusLabelConsole.Size = new System.Drawing.Size(0, 17);
+            this.toolStripStatusLabelConsole.Size = new System.Drawing.Size(102, 25);
+            this.toolStripStatusLabelConsole.Text = "                  ";
+            // 
+            // toolStripStatusLabelFilename
+            // 
+            this.toolStripStatusLabelFilename.Name = "toolStripStatusLabelFilename";
+            this.toolStripStatusLabelFilename.Size = new System.Drawing.Size(47, 25);
+            this.toolStripStatusLabelFilename.Text = "       ";
             // 
             // tableLayoutPanel1
             // 
@@ -114,7 +148,7 @@
             this.tableLayoutPanel1.RowCount = 2;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(1189, 538);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(1241, 528);
             this.tableLayoutPanel1.TabIndex = 3;
             // 
             // tabControl1
@@ -122,10 +156,10 @@
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage2);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabControl1.Location = new System.Drawing.Point(3, 172);
+            this.tabControl1.Location = new System.Drawing.Point(3, 189);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(1183, 363);
+            this.tabControl1.Size = new System.Drawing.Size(1235, 336);
             this.tabControl1.TabIndex = 11;
             // 
             // tabPage1
@@ -134,7 +168,7 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(1175, 337);
+            this.tabPage1.Size = new System.Drawing.Size(1227, 310);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Files";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -147,6 +181,7 @@
             this.columnHeaderFolder,
             this.columnHeaderBitrate,
             this.columnHeaderDuration,
+            this.columnHeaderFPS,
             this.columnHeaderVideo,
             this.columnHeaderAudio,
             this.columnHeaderSize,
@@ -160,13 +195,14 @@
             this.listViewFiles.HideSelection = false;
             this.listViewFiles.Location = new System.Drawing.Point(3, 3);
             this.listViewFiles.Name = "listViewFiles";
-            this.listViewFiles.Size = new System.Drawing.Size(1169, 331);
+            this.listViewFiles.Size = new System.Drawing.Size(1221, 304);
             this.listViewFiles.TabIndex = 0;
             this.listViewFiles.UseCompatibleStateImageBehavior = false;
             this.listViewFiles.View = System.Windows.Forms.View.Details;
             this.listViewFiles.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.listViewFiles_ColumnClick);
             this.listViewFiles.DragDrop += new System.Windows.Forms.DragEventHandler(this.listViewFiles_DragDrop);
             this.listViewFiles.DragEnter += new System.Windows.Forms.DragEventHandler(this.listViewFiles_DragEnter);
+            this.listViewFiles.DoubleClick += new System.EventHandler(this.listViewFiles_DoubleClick);
             this.listViewFiles.KeyDown += new System.Windows.Forms.KeyEventHandler(this.listViewFiles_KeyDown);
             // 
             // columnHeaderName
@@ -186,6 +222,10 @@
             // columnHeaderDuration
             // 
             this.columnHeaderDuration.Text = "Duration";
+            // 
+            // columnHeaderFPS
+            // 
+            this.columnHeaderFPS.Text = "FPS";
             // 
             // columnHeaderVideo
             // 
@@ -217,6 +257,7 @@
             // columnHeaderParameters
             // 
             this.columnHeaderParameters.Text = "Parameters";
+            this.columnHeaderParameters.Width = 106;
             // 
             // columnHeaderStatus
             // 
@@ -224,32 +265,34 @@
             // 
             // contextMenuStrip1
             // 
+            this.contextMenuStrip1.ImageScalingSize = new System.Drawing.Size(36, 36);
             this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.openFileLocationToolStripMenuItem,
             this.applyNewParametersToolStripMenuItem,
             this.resetStatusToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(193, 70);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(263, 100);
             // 
             // openFileLocationToolStripMenuItem
             // 
             this.openFileLocationToolStripMenuItem.Name = "openFileLocationToolStripMenuItem";
-            this.openFileLocationToolStripMenuItem.Size = new System.Drawing.Size(192, 22);
+            this.openFileLocationToolStripMenuItem.Size = new System.Drawing.Size(262, 32);
             this.openFileLocationToolStripMenuItem.Text = "Open file location";
             this.openFileLocationToolStripMenuItem.Click += new System.EventHandler(this.OpenFileLocationToolStripMenuItem_Click);
             // 
             // applyNewParametersToolStripMenuItem
             // 
             this.applyNewParametersToolStripMenuItem.Name = "applyNewParametersToolStripMenuItem";
-            this.applyNewParametersToolStripMenuItem.Size = new System.Drawing.Size(192, 22);
+            this.applyNewParametersToolStripMenuItem.Size = new System.Drawing.Size(262, 32);
             this.applyNewParametersToolStripMenuItem.Text = "Apply new parameters";
             this.applyNewParametersToolStripMenuItem.Click += new System.EventHandler(this.ApplyNewParametersToolStripMenuItem_Click);
             // 
             // resetStatusToolStripMenuItem
             // 
             this.resetStatusToolStripMenuItem.Name = "resetStatusToolStripMenuItem";
-            this.resetStatusToolStripMenuItem.Size = new System.Drawing.Size(192, 22);
+            this.resetStatusToolStripMenuItem.Size = new System.Drawing.Size(262, 32);
             this.resetStatusToolStripMenuItem.Text = "Reset status";
+            this.resetStatusToolStripMenuItem.Click += new System.EventHandler(this.resetStatusToolStripMenuItem_Click);
             // 
             // tabPage2
             // 
@@ -257,7 +300,7 @@
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(1175, 337);
+            this.tabPage2.Size = new System.Drawing.Size(1227, 310);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Commands";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -268,15 +311,39 @@
             this.textBoxLog.Location = new System.Drawing.Point(3, 3);
             this.textBoxLog.Multiline = true;
             this.textBoxLog.Name = "textBoxLog";
-            this.textBoxLog.Size = new System.Drawing.Size(1169, 331);
+            this.textBoxLog.Size = new System.Drawing.Size(1221, 304);
             this.textBoxLog.TabIndex = 0;
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.textBoxAudioBitrate);
+            this.panel1.Controls.Add(this.label11);
+            this.panel1.Controls.Add(this.comboBoxAudio);
+            this.panel1.Controls.Add(this.label10);
+            this.panel1.Controls.Add(this.comboBoxYADIF);
+            this.panel1.Controls.Add(this.maskedTextBoxFPS);
+            this.panel1.Controls.Add(this.label9);
+            this.panel1.Controls.Add(this.label8);
+            this.panel1.Controls.Add(this.label7);
+            this.panel1.Controls.Add(this.comboBoxVsync);
+            this.panel1.Controls.Add(this.multipasComboBox);
+            this.panel1.Controls.Add(this.seekerToTextBox);
+            this.panel1.Controls.Add(this.label6);
+            this.panel1.Controls.Add(this.maskedBF);
+            this.panel1.Controls.Add(this.comboBRefMode);
+            this.panel1.Controls.Add(this.checkBoxSpatialAQ);
+            this.panel1.Controls.Add(this.checkBoxTemporalAQ);
+            this.panel1.Controls.Add(this.checkHwDec);
+            this.panel1.Controls.Add(this.checkBoxSkipIfNotSmaller);
+            this.panel1.Controls.Add(this.seekerTextBox);
+            this.panel1.Controls.Add(this.label1);
+            this.panel1.Controls.Add(this.checkBoxReplaceOldFile);
             this.panel1.Controls.Add(this.numericUpDownBitrate);
             this.panel1.Controls.Add(this.numericUpDownCRF);
             this.panel1.Controls.Add(this.radioButtonBitrate);
             this.panel1.Controls.Add(this.radioButtonCRF);
+            this.panel1.Controls.Add(this.labelBF);
+            this.panel1.Controls.Add(this.label4);
             this.panel1.Controls.Add(this.label5);
             this.panel1.Controls.Add(this.comboBoxScale);
             this.panel1.Controls.Add(this.checkBoxDeleteWhenDone);
@@ -289,15 +356,288 @@
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(3, 3);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(1183, 163);
+            this.panel1.Size = new System.Drawing.Size(1235, 180);
             this.panel1.TabIndex = 4;
+            // 
+            // textBoxAudioBitrate
+            // 
+            this.textBoxAudioBitrate.Location = new System.Drawing.Point(1079, 67);
+            this.textBoxAudioBitrate.Name = "textBoxAudioBitrate";
+            this.textBoxAudioBitrate.Size = new System.Drawing.Size(85, 20);
+            this.textBoxAudioBitrate.TabIndex = 48;
+            this.textBoxAudioBitrate.Text = "640k";
+            // 
+            // label11
+            // 
+            this.label11.Location = new System.Drawing.Point(882, 70);
+            this.label11.Margin = new System.Windows.Forms.Padding(1, 0, 1, 0);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(66, 13);
+            this.label11.TabIndex = 47;
+            this.label11.Text = "Audio:";
+            this.label11.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
+            // comboBoxAudio
+            // 
+            this.comboBoxAudio.FormattingEnabled = true;
+            this.comboBoxAudio.Items.AddRange(new object[] {
+            "copy",
+            "libfdk_aac",
+            "aac",
+            "ac3"});
+            this.comboBoxAudio.Location = new System.Drawing.Point(952, 67);
+            this.comboBoxAudio.Name = "comboBoxAudio";
+            this.comboBoxAudio.Size = new System.Drawing.Size(121, 21);
+            this.comboBoxAudio.TabIndex = 46;
+            // 
+            // label10
+            // 
+            this.label10.Location = new System.Drawing.Point(882, 43);
+            this.label10.Margin = new System.Windows.Forms.Padding(1, 0, 1, 0);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(66, 13);
+            this.label10.TabIndex = 45;
+            this.label10.Text = "YADIF:";
+            this.label10.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
+            // comboBoxYADIF
+            // 
+            this.comboBoxYADIF.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxYADIF.FormattingEnabled = true;
+            this.comboBoxYADIF.Items.AddRange(new object[] {
+            "(no YADIF)",
+            "YADIF",
+            "YADIF_CUDA"});
+            this.comboBoxYADIF.Location = new System.Drawing.Point(952, 40);
+            this.comboBoxYADIF.Name = "comboBoxYADIF";
+            this.comboBoxYADIF.Size = new System.Drawing.Size(121, 21);
+            this.comboBoxYADIF.TabIndex = 44;
+            // 
+            // maskedTextBoxFPS
+            // 
+            this.maskedTextBoxFPS.Location = new System.Drawing.Point(952, 140);
+            this.maskedTextBoxFPS.Mask = "00.000";
+            this.maskedTextBoxFPS.Name = "maskedTextBoxFPS";
+            this.maskedTextBoxFPS.Size = new System.Drawing.Size(121, 20);
+            this.maskedTextBoxFPS.TabIndex = 41;
+            this.maskedTextBoxFPS.ValidatingType = typeof(int);
+            // 
+            // label9
+            // 
+            this.label9.Location = new System.Drawing.Point(882, 140);
+            this.label9.Margin = new System.Windows.Forms.Padding(1, 0, 1, 0);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(66, 13);
+            this.label9.TabIndex = 40;
+            this.label9.Text = "fps:";
+            this.label9.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
+            // label8
+            // 
+            this.label8.Location = new System.Drawing.Point(676, 140);
+            this.label8.Margin = new System.Windows.Forms.Padding(1, 0, 1, 0);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(66, 13);
+            this.label8.TabIndex = 39;
+            this.label8.Text = "vsync:";
+            this.label8.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
+            // label7
+            // 
+            this.label7.Location = new System.Drawing.Point(676, 113);
+            this.label7.Margin = new System.Windows.Forms.Padding(1, 0, 1, 0);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(66, 13);
+            this.label7.TabIndex = 38;
+            this.label7.Text = "multipass:";
+            this.label7.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
+            // comboBoxVsync
+            // 
+            this.comboBoxVsync.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxVsync.FormattingEnabled = true;
+            this.comboBoxVsync.Items.AddRange(new object[] {
+            "0, passthrough",
+            "1, cfr",
+            "2, vfr",
+            "drop",
+            "-1, auto (1 or 2)"});
+            this.comboBoxVsync.Location = new System.Drawing.Point(746, 137);
+            this.comboBoxVsync.Name = "comboBoxVsync";
+            this.comboBoxVsync.Size = new System.Drawing.Size(121, 21);
+            this.comboBoxVsync.TabIndex = 37;
+            // 
+            // multipasComboBox
+            // 
+            this.multipasComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.multipasComboBox.FormattingEnabled = true;
+            this.multipasComboBox.Items.AddRange(new object[] {
+            "0 disable",
+            "1 qres",
+            "2 fullres"});
+            this.multipasComboBox.Location = new System.Drawing.Point(746, 110);
+            this.multipasComboBox.Name = "multipasComboBox";
+            this.multipasComboBox.Size = new System.Drawing.Size(121, 21);
+            this.multipasComboBox.TabIndex = 37;
+            // 
+            // seekerToTextBox
+            // 
+            this.seekerToTextBox.InsertKeyMode = System.Windows.Forms.InsertKeyMode.Overwrite;
+            this.seekerToTextBox.Location = new System.Drawing.Point(448, 129);
+            this.seekerToTextBox.Mask = "00:00:00.000";
+            this.seekerToTextBox.Name = "seekerToTextBox";
+            this.seekerToTextBox.Size = new System.Drawing.Size(120, 20);
+            this.seekerToTextBox.TabIndex = 36;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(407, 129);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(23, 13);
+            this.label6.TabIndex = 35;
+            this.label6.Text = "To:";
+            // 
+            // maskedBF
+            // 
+            this.maskedBF.Location = new System.Drawing.Point(746, 84);
+            this.maskedBF.Mask = "000";
+            this.maskedBF.Name = "maskedBF";
+            this.maskedBF.Size = new System.Drawing.Size(121, 20);
+            this.maskedBF.TabIndex = 34;
+            this.maskedBF.Text = "3";
+            this.maskedBF.ValidatingType = typeof(int);
+            // 
+            // comboBRefMode
+            // 
+            this.comboBRefMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBRefMode.FormattingEnabled = true;
+            this.comboBRefMode.Items.AddRange(new object[] {
+            "0 disable",
+            "1 each",
+            "2 middle"});
+            this.comboBRefMode.Location = new System.Drawing.Point(746, 53);
+            this.comboBRefMode.Name = "comboBRefMode";
+            this.comboBRefMode.Size = new System.Drawing.Size(121, 21);
+            this.comboBRefMode.TabIndex = 33;
+            // 
+            // checkBoxSpatialAQ
+            // 
+            this.checkBoxSpatialAQ.AutoSize = true;
+            this.checkBoxSpatialAQ.Location = new System.Drawing.Point(1059, 103);
+            this.checkBoxSpatialAQ.Name = "checkBoxSpatialAQ";
+            this.checkBoxSpatialAQ.Size = new System.Drawing.Size(83, 21);
+            this.checkBoxSpatialAQ.TabIndex = 32;
+            this.checkBoxSpatialAQ.Text = "Spatial AQ";
+            this.checkBoxSpatialAQ.UseVisualStyleBackColor = true;
+            // 
+            // checkBoxTemporalAQ
+            // 
+            this.checkBoxTemporalAQ.AutoSize = true;
+            this.checkBoxTemporalAQ.Location = new System.Drawing.Point(952, 103);
+            this.checkBoxTemporalAQ.Name = "checkBoxTemporalAQ";
+            this.checkBoxTemporalAQ.Size = new System.Drawing.Size(95, 21);
+            this.checkBoxTemporalAQ.TabIndex = 32;
+            this.checkBoxTemporalAQ.Text = "Temporal AQ";
+            this.checkBoxTemporalAQ.UseVisualStyleBackColor = true;
+            // 
+            // checkHwDec
+            // 
+            this.checkHwDec.AutoSize = true;
+            this.checkHwDec.Location = new System.Drawing.Point(679, 26);
+            this.checkHwDec.Name = "checkHwDec";
+            this.checkHwDec.Size = new System.Drawing.Size(101, 21);
+            this.checkHwDec.TabIndex = 32;
+            this.checkHwDec.Text = "HW Decoding";
+            this.checkHwDec.UseVisualStyleBackColor = true;
+            // 
+            // checkBoxSkipIfNotSmaller
+            // 
+            this.checkBoxSkipIfNotSmaller.AutoSize = true;
+            this.checkBoxSkipIfNotSmaller.Checked = true;
+            this.checkBoxSkipIfNotSmaller.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBoxSkipIfNotSmaller.Location = new System.Drawing.Point(50, 131);
+            this.checkBoxSkipIfNotSmaller.Name = "checkBoxSkipIfNotSmaller";
+            this.checkBoxSkipIfNotSmaller.Size = new System.Drawing.Size(115, 21);
+            this.checkBoxSkipIfNotSmaller.TabIndex = 31;
+            this.checkBoxSkipIfNotSmaller.Text = "Skip if not smaller";
+            this.checkBoxSkipIfNotSmaller.UseVisualStyleBackColor = true;
+            // 
+            // seekerTextBox
+            // 
+            this.seekerTextBox.InsertKeyMode = System.Windows.Forms.InsertKeyMode.Overwrite;
+            this.seekerTextBox.Location = new System.Drawing.Point(449, 107);
+            this.seekerTextBox.Mask = "00:00:00.000";
+            this.seekerTextBox.Name = "seekerTextBox";
+            this.seekerTextBox.Size = new System.Drawing.Size(120, 20);
+            this.seekerTextBox.TabIndex = 30;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(408, 107);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(35, 13);
+            this.label1.TabIndex = 29;
+            this.label1.Text = "Seek:";
+            // 
+            // checkBoxReplaceOldFile
+            // 
+            this.checkBoxReplaceOldFile.AutoSize = true;
+            this.checkBoxReplaceOldFile.Location = new System.Drawing.Point(50, 107);
+            this.checkBoxReplaceOldFile.Name = "checkBoxReplaceOldFile";
+            this.checkBoxReplaceOldFile.Size = new System.Drawing.Size(106, 21);
+            this.checkBoxReplaceOldFile.TabIndex = 27;
+            this.checkBoxReplaceOldFile.Text = "Replace old file";
+            this.checkBoxReplaceOldFile.UseVisualStyleBackColor = true;
+            // 
+            // numericUpDownBitrate
+            // 
+            this.numericUpDownBitrate.Increment = new decimal(new int[] {
+            50,
+            0,
+            0,
+            0});
+            this.numericUpDownBitrate.Location = new System.Drawing.Point(449, 53);
+            this.numericUpDownBitrate.Maximum = new decimal(new int[] {
+            50000,
+            0,
+            0,
+            0});
+            this.numericUpDownBitrate.Name = "numericUpDownBitrate";
+            this.numericUpDownBitrate.Size = new System.Drawing.Size(120, 20);
+            this.numericUpDownBitrate.TabIndex = 26;
+            this.numericUpDownBitrate.Value = new decimal(new int[] {
+            1800,
+            0,
+            0,
+            0});
+            this.numericUpDownBitrate.ValueChanged += new System.EventHandler(this.numericUpDownBitrate_ValueChanged);
+            // 
+            // numericUpDownCRF
+            // 
+            this.numericUpDownCRF.Location = new System.Drawing.Point(449, 27);
+            this.numericUpDownCRF.Maximum = new decimal(new int[] {
+            50,
+            0,
+            0,
+            0});
+            this.numericUpDownCRF.Name = "numericUpDownCRF";
+            this.numericUpDownCRF.Size = new System.Drawing.Size(120, 20);
+            this.numericUpDownCRF.TabIndex = 25;
+            this.numericUpDownCRF.Value = new decimal(new int[] {
+            23,
+            0,
+            0,
+            0});
+            this.numericUpDownCRF.ValueChanged += new System.EventHandler(this.numericUpDownCRF_ValueChanged);
             // 
             // radioButtonBitrate
             // 
             this.radioButtonBitrate.AutoSize = true;
-            this.radioButtonBitrate.Location = new System.Drawing.Point(358, 57);
+            this.radioButtonBitrate.Location = new System.Drawing.Point(363, 53);
             this.radioButtonBitrate.Name = "radioButtonBitrate";
-            this.radioButtonBitrate.Size = new System.Drawing.Size(80, 17);
+            this.radioButtonBitrate.Size = new System.Drawing.Size(87, 20);
             this.radioButtonBitrate.TabIndex = 24;
             this.radioButtonBitrate.Text = "Avg Bitrate:";
             this.radioButtonBitrate.UseVisualStyleBackColor = true;
@@ -306,18 +646,38 @@
             // 
             this.radioButtonCRF.AutoSize = true;
             this.radioButtonCRF.Checked = true;
-            this.radioButtonCRF.Location = new System.Drawing.Point(389, 31);
+            this.radioButtonCRF.Location = new System.Drawing.Point(394, 27);
             this.radioButtonCRF.Name = "radioButtonCRF";
-            this.radioButtonCRF.Size = new System.Drawing.Size(49, 17);
+            this.radioButtonCRF.Size = new System.Drawing.Size(56, 20);
             this.radioButtonCRF.TabIndex = 23;
             this.radioButtonCRF.TabStop = true;
             this.radioButtonCRF.Text = "CRF:";
             this.radioButtonCRF.UseVisualStyleBackColor = true;
             // 
+            // labelBF
+            // 
+            this.labelBF.Location = new System.Drawing.Point(676, 84);
+            this.labelBF.Margin = new System.Windows.Forms.Padding(1, 0, 1, 0);
+            this.labelBF.Name = "labelBF";
+            this.labelBF.Size = new System.Drawing.Size(66, 13);
+            this.labelBF.TabIndex = 22;
+            this.labelBF.Text = "bf:";
+            this.labelBF.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
+            // label4
+            // 
+            this.label4.Location = new System.Drawing.Point(676, 56);
+            this.label4.Margin = new System.Windows.Forms.Padding(1, 0, 1, 0);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(66, 13);
+            this.label4.TabIndex = 22;
+            this.label4.Text = "b_ref_mode:";
+            this.label4.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(388, 87);
+            this.label5.Location = new System.Drawing.Point(406, 83);
             this.label5.Margin = new System.Windows.Forms.Padding(1, 0, 1, 0);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(37, 13);
@@ -334,7 +694,7 @@
             "2160",
             "576",
             "480"});
-            this.comboBoxScale.Location = new System.Drawing.Point(443, 84);
+            this.comboBoxScale.Location = new System.Drawing.Point(448, 80);
             this.comboBoxScale.Name = "comboBoxScale";
             this.comboBoxScale.Size = new System.Drawing.Size(121, 21);
             this.comboBoxScale.TabIndex = 20;
@@ -343,9 +703,9 @@
             // checkBoxDeleteWhenDone
             // 
             this.checkBoxDeleteWhenDone.AutoSize = true;
-            this.checkBoxDeleteWhenDone.Location = new System.Drawing.Point(66, 82);
+            this.checkBoxDeleteWhenDone.Location = new System.Drawing.Point(50, 84);
             this.checkBoxDeleteWhenDone.Name = "checkBoxDeleteWhenDone";
-            this.checkBoxDeleteWhenDone.Size = new System.Drawing.Size(132, 17);
+            this.checkBoxDeleteWhenDone.Size = new System.Drawing.Size(139, 21);
             this.checkBoxDeleteWhenDone.TabIndex = 17;
             this.checkBoxDeleteWhenDone.Text = "Delete file when done.";
             this.checkBoxDeleteWhenDone.UseVisualStyleBackColor = true;
@@ -374,11 +734,14 @@
             this.comboBoxCodec.FormattingEnabled = true;
             this.comboBoxCodec.Items.AddRange(new object[] {
             "libx265",
-            "nvenc_hevc",
+            "hevc_nvenc",
             "hevc_qsv",
+            "libsvtav1",
             "libx264",
-            "nvenc_h264",
-            "h264_qsv"});
+            "h264_nvenc",
+            "h264_qsv",
+            "vmaf",
+            "copy"});
             this.comboBoxCodec.Location = new System.Drawing.Point(156, 17);
             this.comboBoxCodec.Name = "comboBoxCodec";
             this.comboBoxCodec.Size = new System.Drawing.Size(157, 21);
@@ -395,7 +758,7 @@
             // 
             // buttonStart
             // 
-            this.buttonStart.Location = new System.Drawing.Point(209, 76);
+            this.buttonStart.Location = new System.Drawing.Point(244, 76);
             this.buttonStart.Name = "buttonStart";
             this.buttonStart.Size = new System.Drawing.Size(69, 29);
             this.buttonStart.TabIndex = 12;
@@ -410,52 +773,11 @@
             this.textBoxOutdir.Size = new System.Drawing.Size(263, 20);
             this.textBoxOutdir.TabIndex = 10;
             // 
-            // numericUpDownCRF
-            // 
-            this.numericUpDownCRF.Location = new System.Drawing.Point(444, 31);
-            this.numericUpDownCRF.Maximum = new decimal(new int[] {
-            50,
-            0,
-            0,
-            0});
-            this.numericUpDownCRF.Name = "numericUpDownCRF";
-            this.numericUpDownCRF.Size = new System.Drawing.Size(120, 20);
-            this.numericUpDownCRF.TabIndex = 25;
-            this.numericUpDownCRF.Value = new decimal(new int[] {
-            24,
-            0,
-            0,
-            0});
-            this.numericUpDownCRF.ValueChanged += new System.EventHandler(this.numericUpDownCRF_ValueChanged);
-            // 
-            // numericUpDownBitrate
-            // 
-            this.numericUpDownBitrate.Increment = new decimal(new int[] {
-            50,
-            0,
-            0,
-            0});
-            this.numericUpDownBitrate.Location = new System.Drawing.Point(444, 57);
-            this.numericUpDownBitrate.Maximum = new decimal(new int[] {
-            50000,
-            0,
-            0,
-            0});
-            this.numericUpDownBitrate.Name = "numericUpDownBitrate";
-            this.numericUpDownBitrate.Size = new System.Drawing.Size(120, 20);
-            this.numericUpDownBitrate.TabIndex = 26;
-            this.numericUpDownBitrate.Value = new decimal(new int[] {
-            1800,
-            0,
-            0,
-            0});
-            this.numericUpDownBitrate.ValueChanged += new System.EventHandler(this.numericUpDownBitrate_ValueChanged);
-            // 
             // GepmffForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1189, 560);
+            this.ClientSize = new System.Drawing.Size(1241, 560);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Controls.Add(this.statusStrip1);
             this.DoubleBuffered = true;
@@ -472,8 +794,8 @@
             this.tabPage2.PerformLayout();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownCRF)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownBitrate)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownCRF)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -520,6 +842,32 @@
         private System.Windows.Forms.ToolStripMenuItem resetStatusToolStripMenuItem;
         private System.Windows.Forms.NumericUpDown numericUpDownBitrate;
         private System.Windows.Forms.NumericUpDown numericUpDownCRF;
+        private System.Windows.Forms.CheckBox checkBoxReplaceOldFile;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.MaskedTextBox seekerTextBox;
+        private System.Windows.Forms.CheckBox checkBoxSkipIfNotSmaller;
+        private System.Windows.Forms.CheckBox checkHwDec;
+        private System.Windows.Forms.ComboBox comboBRefMode;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.MaskedTextBox maskedBF;
+        private System.Windows.Forms.Label labelBF;
+        private System.Windows.Forms.CheckBox checkBoxSpatialAQ;
+        private System.Windows.Forms.CheckBox checkBoxTemporalAQ;
+        private System.Windows.Forms.MaskedTextBox seekerToTextBox;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.ComboBox multipasComboBox;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelFilename;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.ComboBox comboBoxVsync;
+        private System.Windows.Forms.ColumnHeader columnHeaderFPS;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.MaskedTextBox maskedTextBoxFPS;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.ComboBox comboBoxYADIF;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.ComboBox comboBoxAudio;
+        private System.Windows.Forms.TextBox textBoxAudioBitrate;
     }
 }
 
